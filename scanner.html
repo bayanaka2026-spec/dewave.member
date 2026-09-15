@@ -1,1 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deWAVE Staff Scanner</title>
 
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:20px;
+  background:#f5f1e8;
+  font-family:Arial,sans-serif;
+  color:#222;
+}
+
+.header{
+  background:#111;
+  color:#d8bd78;
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:16px;
+}
+
+.header h1{
+  margin:0;
+  font-family:Georgia,serif;
+  font-size:28px;
+}
+
+.header p{
+  margin:5px 0 0;
+  color:#ddd;
+  font-size:13px;
+}
+
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:16px;
+}
+
+.title{
+  font-weight:bold;
+  margin-bottom:12px;
+  font-size:17px;
+}
+
+#reader{
+  width:100%;
+  min-height:300px;
+  border-radius:16px;
+  overflow:hidden;
+  background:#111;
+}
+
+#reader video{
+  width:100%!important;
+  height:auto!important;
+  object-fit:cover;
+}
+
+.status{
+  text-align:center;
+  margin-top:15px;
+  font-size:14px;
+  color:#666;
+}
+
+.result{
+  display:none;
+  margin-top:18px;
+  padding:18px;
+  border-radius:15px;
+  background:#f5f1e8;
+  text-align:center;
+}
+
+.result.show{
+  display:block;
+}
+
+.member-id{
+  font-size:24px;
+  font-weight:bold;
+  margin:8px 0;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:15px;
+  margin-top:12px;
+  font-weight:bold;
+  background:#111;
+  color:#d8bd78;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>deWAVE Staff</h1>
+  <p>Alam Sutera · Member Scanner</p>
+</div>
+
+<div class="card">
+
+  <div class="title">Scan QR Member</div>
+
+  <div id="reader"></div>
+
+  <div id="status" class="status">
+    Memulai kamera...
+  </div>
+
+  <div id="result" class="result">
+
+    <div>QR MEMBER TERBACA</div>
+
+    <div id="memberId" class="member-id">-</div>
+
+    <button onclick="scanAgain()">
+      SCAN LAGI
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+let scanner=null;
+let scanning=false;
+let lastCode="";
+
+function setStatus(text){
+  document.getElementById("status").innerText=text;
+}
+
+function startScanner(){
+
+  if(scanning) return;
+
+  const reader=document.getElementById("reader");
+
+  reader.innerHTML="";
+
+  scanner=new Html5Qrcode("reader");
+
+  scanner.start(
+    {facingMode:"environment"},
+
+    {
+      fps:10,
+
+      qrbox:function(width,height){
+
+        const size=Math.floor(
+          Math.min(width,height)*0.7
+        );
+
+        return {
+          width:size,
+          height:size
+        };
+
+      },
+
+      aspectRatio:1.0
+    },
+
+    function(decodedText){
+
+      if(!decodedText) return;
+
+      if(decodedText===lastCode) return;
+
+      lastCode=decodedText;
+
+      qrSuccess(decodedText);
+
+    },
+
+    function(){
+      // abaikan error pembacaan frame
+    }
+
+  )
+
+  .then(function(){
+
+    scanning=true;
+
+    setStatus(
+      "Arahkan kamera ke QR Member"
+    );
+
+  })
+
+  .catch(function(error){
+
+    console.error(error);
+
+    scanning=false;
+
+    setStatus(
+      "Kamera tidak dapat digunakan."
+    );
+
+    alert(
+      "Kamera tidak dapat digunakan.\n\n"+
+      "Pastikan izin kamera untuk website ini sudah diizinkan."
+    );
+
+  });
+
+}
+
+function qrSuccess(code){
+
+  setStatus("QR berhasil dibaca.");
+
+  document.getElementById("memberId")
+    .innerText=code;
+
+  document.getElementById("result")
+    .classList.add("show");
+
+  if(scanner && scanning){
+
+    scanner.stop()
+      .then(function(){
+        scanning=false;
+      })
+      .catch(function(){
+        scanning=false;
+      });
+
+  }
+
+}
+
+function scanAgain(){
+
+  document.getElementById("result")
+    .classList.remove("show");
+
+  lastCode="";
+
+  setStatus("Memulai kamera...");
+
+  setTimeout(function(){
+    startScanner();
+  },300);
+
+}
+
+window.addEventListener("load",function(){
+
+  setTimeout(function(){
+    startScanner();
+  },500);
+
+});
+
+</script>
+
+</body>
+</html>
