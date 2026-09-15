@@ -1,393 +1,478 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>deWAVE Staff Scanner</title>
+  <meta charset="UTF-8">
 
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
-<style>
-*{box-sizing:border-box}
+  <title>deWAVE Staff Scanner</title>
 
-body{
-  margin:0;
-  padding:20px;
-  background:#f5f1e8;
-  font-family:Arial,sans-serif;
-  color:#222;
-}
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-.header{
-  background:#111;
-  color:#d8bd78;
-  border-radius:20px;
-  padding:22px;
-  margin-bottom:16px;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-.header h1{
-  margin:0;
-  font-family:Georgia,serif;
-  font-size:28px;
-}
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f5f1e8;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
 
-.header p{
-  margin:5px 0 0;
-  color:#ddd;
-  font-size:13px;
-}
+    .header {
+      background: #111;
+      color: #d8bd78;
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
 
-.card{
-  background:#fff;
-  border-radius:20px;
-  padding:16px;
-}
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
 
-.title{
-  font-weight:bold;
-  margin-bottom:12px;
-  font-size:17px;
-}
+    .title {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #fff;
+    }
 
-#reader{
-  width:100%;
-  min-height:300px;
-  border-radius:16px;
-  overflow:hidden;
-  background:#111;
-}
+    .scanner-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
 
-#reader video{
-  width:100%!important;
-  height:auto!important;
-  object-fit:cover;
-}
+    #reader {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #111;
+    }
 
-.status{
-  text-align:center;
-  margin-top:15px;
-  font-size:14px;
-  color:#666;
-}
+    #reader video {
+      width: 100% !important;
+      height: auto !important;
+      border-radius: 16px;
+    }
 
-.result{
-  display:none;
-  margin-top:18px;
-  padding:18px;
-  border-radius:15px;
-  background:#f5f1e8;
-  text-align:center;
-}
+    #reader__scan_region {
+      border-radius: 16px;
+      overflow: hidden;
+    }
 
-.result.show{
-  display:block;
-}
+    #reader__dashboard {
+      padding: 12px !important;
+    }
 
-.member-id{
-  font-size:24px;
-  font-weight:bold;
-  margin:8px 0;
-}
+    #reader__dashboard_section_csr {
+      display: none !important;
+    }
 
-button{
-  width:100%;
-  border:0;
-  border-radius:12px;
-  padding:15px;
-  margin-top:12px;
-  font-weight:bold;
-  background:#111;
-  color:#d8bd78;
-}
+    #reader__dashboard_section_swaplink {
+      margin-top: 10px;
+    }
 
-button.secondary{
-  background:#ddd8cc;
-  color:#333;
-}
-</style>
+    #reader button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: #111;
+      color: #d8bd78;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f5f1e8;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 16px;
+      padding: 18px;
+      background: #111;
+      color: #fff;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result-label {
+      font-size: 12px;
+      color: #d8bd78;
+      margin-bottom: 8px;
+    }
+
+    .member-id {
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .close-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px;
+      border: 0;
+      border-radius: 12px;
+      background: #d8bd78;
+      color: #111;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .error {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8e8e8;
+      color: #8a2222;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .hint {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1>deWAVE Staff</h1>
-  <p>Alam Sutera · Member Scanner</p>
-</div>
-
-<div class="card">
-
-  <div class="title">
-    Scan QR Member
+  <div class="header">
+    <div class="logo">deWAVE</div>
+    <div class="title">STAFF QR SCANNER</div>
   </div>
 
-  <div id="reader"></div>
+  <div class="scanner-card">
 
-  <div id="status" class="status">
-    Memulai kamera...
+    <div id="reader"></div>
+
+    <div id="status" class="status">
+      Mengaktifkan kamera...
+    </div>
+
+    <div id="errorBox" class="error"></div>
+
+    <div id="resultBox" class="result">
+
+      <div class="result-label">
+        MEMBER ID
+      </div>
+
+      <div id="memberId" class="member-id">
+        -
+      </div>
+
+      <button
+        class="close-btn"
+        onclick="closeScanner()"
+      >
+        TUTUP SCANNER
+      </button>
+
+    </div>
+
+    <div class="hint">
+      Arahkan kamera ke QR Member deWAVE.
+      <br>
+      Setelah QR terbaca, data akan dikirim kembali ke halaman Staff.
+    </div>
+
   </div>
 
-  <div id="result" class="result">
 
-    <div>QR MEMBER TERBACA</div>
+  <script>
 
-    <div id="memberId" class="member-id">-</div>
-
-    <button onclick="sendToDewave()">
-      BUKA DATA MEMBER
-    </button>
-
-    <button
-      class="secondary"
-      onclick="scanAgain()">
-      SCAN LAGI
-    </button>
-
-  </div>
-
-</div>
-
-<script>
-
-const DEWAVE_APP =
-  "https://script.google.com/macros/s/AKfycbzEXatjZpYjVfbIvNEUlywA85Nu7LQd9lWg8jA0-iWDM6BwJVFFoFmeQMsYaOOHVtkX/exec";
-
-let scanner=null;
-let scanning=false;
-let lastCode="";
-let scannedMemberId="";
+    let html5QrCode = null;
+    let scanFinished = false;
 
 
-function setStatus(text){
-  document.getElementById("status").innerText=text;
-}
-
-
-function startScanner(){
-
-  if(scanning) return;
-
-  const reader =
-    document.getElementById("reader");
-
-  reader.innerHTML="";
-
-  scanner =
-    new Html5Qrcode("reader");
-
-
-  scanner.start(
-
-    {
-      facingMode:"environment"
-    },
-
-    {
-      fps:10,
-
-      qrbox:function(width,height){
-
-        const size =
-          Math.floor(
-            Math.min(width,height)*0.7
-          );
-
-        return {
-          width:size,
-          height:size
-        };
-
-      },
-
-      aspectRatio:1.0
-    },
-
-    function(decodedText){
-
-      if(!decodedText) return;
-
-      if(decodedText===lastCode) return;
-
-      lastCode=decodedText;
-
-      qrSuccess(decodedText);
-
-    },
-
-    function(){
-      // Abaikan error pembacaan frame
+    function setStatus(text) {
+      document.getElementById("status").innerText = text;
     }
 
-  )
 
-  .then(function(){
+    function showError(text) {
+      const box = document.getElementById("errorBox");
 
-    scanning=true;
-
-    setStatus(
-      "Arahkan kamera ke QR Member"
-    );
-
-  })
-
-  .catch(function(error){
-
-    console.error(error);
-
-    scanning=false;
-
-    setStatus(
-      "Kamera tidak dapat digunakan."
-    );
-
-    alert(
-      "Kamera tidak dapat digunakan.\n\n"+
-      "Pastikan izin kamera sudah diberikan."
-    );
-
-  });
-
-}
+      box.innerText = text;
+      box.classList.add("show");
+    }
 
 
-function qrSuccess(code){
-
-  scannedMemberId =
-    String(code).trim();
-
-  document.getElementById("memberId")
-    .innerText=scannedMemberId;
-
-  document.getElementById("result")
-    .classList.add("show");
-
-  setStatus(
-    "QR berhasil dibaca."
-  );
+    function hideError() {
+      document
+        .getElementById("errorBox")
+        .classList.remove("show");
+    }
 
 
-  if(scanner && scanning){
+    function showResult(memberId) {
 
-    scanner.stop()
-      .then(function(){
+      document.getElementById("memberId").innerText = memberId;
 
-        scanning=false;
+      document
+        .getElementById("resultBox")
+        .classList.add("show");
 
-      })
-      .catch(function(){
-
-        scanning=false;
-
-      });
-
-  }
-
-}
+    }
 
 
-/*
-  Kirim ID Member ke halaman deWAVE
-*/
-function sendToDewave(){
+    function sendResultToParent(memberId) {
 
-  if(!scannedMemberId){
+      /*
+       * Kirim hasil scan ke halaman Apps Script
+       */
+      if (window.opener && !window.opener.closed) {
 
-    alert("ID Member belum terbaca.");
+        window.opener.postMessage(
+          {
+            type: "DEWAVE_MEMBER_SCAN",
+            memberId: memberId
+          },
+          "*"
+        );
 
-    return;
-  }
+      }
+
+    }
 
 
-  /*
-    Jika scanner dibuka dari Web App,
-    kirim ID langsung ke halaman asal.
-  */
-  if(window.opener && !window.opener.closed){
+    async function stopScanner() {
 
-    try{
+      try {
 
-      window.opener.postMessage(
+        if (html5QrCode) {
 
-        {
-          type:"DEWAVE_MEMBER_SCANNED",
-          memberId:scannedMemberId
-        },
+          await html5QrCode.stop();
 
-        "*"
+          await html5QrCode.clear();
 
-      );
+        }
 
-      setStatus(
-        "Data member dikirim ke deWAVE."
-      );
+      } catch (e) {
 
-      setTimeout(function(){
+        console.log("Scanner stop:", e);
+
+      }
+
+    }
+
+
+    async function onScanSuccess(decodedText, decodedResult) {
+
+      if (scanFinished) {
+        return;
+      }
+
+      scanFinished = true;
+
+      const memberId = String(decodedText || "").trim();
+
+      if (!memberId) {
+
+        scanFinished = false;
+
+        return;
+
+      }
+
+      hideError();
+
+      setStatus("QR berhasil dibaca.");
+
+      showResult(memberId);
+
+      /*
+       * Kirim Member ID ke halaman Staff Apps Script
+       */
+      sendResultToParent(memberId);
+
+      /*
+       * Matikan kamera
+       */
+      await stopScanner();
+
+      /*
+       * Tutup window scanner setelah sebentar
+       */
+      setTimeout(function() {
+
+        if (window.opener && !window.opener.closed) {
+          window.close();
+        }
+
+      }, 700);
+
+    }
+
+
+    function onScanFailure(errorMessage) {
+
+      /*
+       * Jangan tampilkan error setiap frame.
+       * html5-qrcode memang akan memanggil
+       * fungsi ini saat QR belum terbaca.
+       */
+
+    }
+
+
+    async function startScanner() {
+
+      hideError();
+
+      setStatus("Meminta izin kamera...");
+
+      try {
+
+        html5QrCode = new Html5Qrcode("reader");
+
+        const config = {
+
+          fps: 10,
+
+          qrbox: function(viewfinderWidth, viewfinderHeight) {
+
+            const size = Math.min(
+              Math.floor(viewfinderWidth * 0.72),
+              Math.floor(viewfinderHeight * 0.72),
+              320
+            );
+
+            return {
+              width: size,
+              height: size
+            };
+
+          },
+
+          aspectRatio: 1.0,
+
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE
+          ]
+
+        };
+
+
+        await html5QrCode.start(
+
+          {
+            facingMode: "environment"
+          },
+
+          config,
+
+          onScanSuccess,
+
+          onScanFailure
+
+        );
+
+
+        setStatus(
+          "Kamera aktif. Arahkan ke QR Member."
+        );
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        setStatus("Kamera tidak dapat digunakan.");
+
+        showError(
+          "Tidak dapat mengakses kamera. " +
+          "Pastikan izin kamera sudah diberikan " +
+          "dan halaman dibuka melalui HTTPS."
+        );
+
+      }
+
+    }
+
+
+    async function closeScanner() {
+
+      await stopScanner();
+
+      if (window.opener && !window.opener.closed) {
 
         window.close();
 
-      },500);
+      } else {
 
-      return;
+        history.back();
 
-    }catch(error){
-
-      console.error(error);
+      }
 
     }
 
-  }
+
+    /*
+     * Jika scanner dibuka dari Apps Script,
+     * fokus kembali ke halaman Staff.
+     */
+    window.addEventListener("beforeunload", function() {
+
+      try {
+
+        if (html5QrCode) {
+          html5QrCode.stop();
+        }
+
+      } catch (e) {}
+
+    });
 
 
-  /*
-    Fallback:
-    buka Web App dengan ID Member.
-  */
-  const url =
-    DEWAVE_APP +
-    "?member=" +
-    encodeURIComponent(
-      scannedMemberId
-    );
+    /*
+     * Jalankan scanner setelah halaman siap.
+     */
+    window.addEventListener("load", function() {
 
-  window.location.href=url;
+      setTimeout(function() {
 
-}
+        startScanner();
 
+      }, 300);
 
-function scanAgain(){
+    });
 
-  document.getElementById("result")
-    .classList.remove("show");
-
-  lastCode="";
-  scannedMemberId="";
-
-  setStatus(
-    "Memulai kamera..."
-  );
-
-  setTimeout(function(){
-
-    startScanner();
-
-  },300);
-
-}
-
-
-window.addEventListener(
-  "load",
-  function(){
-
-    setTimeout(function(){
-
-      startScanner();
-
-    },500);
-
-  }
-);
-
-</script>
+  </script>
 
 </body>
 </html>
