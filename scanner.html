@@ -99,6 +99,11 @@ button{
   background:#111;
   color:#d8bd78;
 }
+
+button.secondary{
+  background:#ddd8cc;
+  color:#333;
+}
 </style>
 </head>
 
@@ -111,7 +116,9 @@ button{
 
 <div class="card">
 
-  <div class="title">Scan QR Member</div>
+  <div class="title">
+    Scan QR Member
+  </div>
 
   <div id="reader"></div>
 
@@ -125,7 +132,13 @@ button{
 
     <div id="memberId" class="member-id">-</div>
 
-    <button onclick="scanAgain()">
+    <button onclick="sendToDewave()">
+      BUKA DATA MEMBER
+    </button>
+
+    <button
+      class="secondary"
+      onclick="scanAgain()">
       SCAN LAGI
     </button>
 
@@ -135,35 +148,48 @@ button{
 
 <script>
 
+const DEWAVE_APP =
+  "https://script.google.com/macros/s/AKfycbzEXatjZpYjVfbIvNEUlywA85Nu7LQd9lWg8jA0-iWDM6BwJVFFoFmeQMsYaOOHVtkX/exec";
+
 let scanner=null;
 let scanning=false;
 let lastCode="";
+let scannedMemberId="";
+
 
 function setStatus(text){
   document.getElementById("status").innerText=text;
 }
 
+
 function startScanner(){
 
   if(scanning) return;
 
-  const reader=document.getElementById("reader");
+  const reader =
+    document.getElementById("reader");
 
   reader.innerHTML="";
 
-  scanner=new Html5Qrcode("reader");
+  scanner =
+    new Html5Qrcode("reader");
+
 
   scanner.start(
-    {facingMode:"environment"},
+
+    {
+      facingMode:"environment"
+    },
 
     {
       fps:10,
 
       qrbox:function(width,height){
 
-        const size=Math.floor(
-          Math.min(width,height)*0.7
-        );
+        const size =
+          Math.floor(
+            Math.min(width,height)*0.7
+          );
 
         return {
           width:size,
@@ -188,7 +214,7 @@ function startScanner(){
     },
 
     function(){
-      // abaikan error pembacaan frame
+      // Abaikan error pembacaan frame
     }
 
   )
@@ -215,36 +241,117 @@ function startScanner(){
 
     alert(
       "Kamera tidak dapat digunakan.\n\n"+
-      "Pastikan izin kamera untuk website ini sudah diizinkan."
+      "Pastikan izin kamera sudah diberikan."
     );
 
   });
 
 }
 
+
 function qrSuccess(code){
 
-  setStatus("QR berhasil dibaca.");
+  scannedMemberId =
+    String(code).trim();
 
   document.getElementById("memberId")
-    .innerText=code;
+    .innerText=scannedMemberId;
 
   document.getElementById("result")
     .classList.add("show");
+
+  setStatus(
+    "QR berhasil dibaca."
+  );
+
 
   if(scanner && scanning){
 
     scanner.stop()
       .then(function(){
+
         scanning=false;
+
       })
       .catch(function(){
+
         scanning=false;
+
       });
 
   }
 
 }
+
+
+/*
+  Kirim ID Member ke halaman deWAVE
+*/
+function sendToDewave(){
+
+  if(!scannedMemberId){
+
+    alert("ID Member belum terbaca.");
+
+    return;
+  }
+
+
+  /*
+    Jika scanner dibuka dari Web App,
+    kirim ID langsung ke halaman asal.
+  */
+  if(window.opener && !window.opener.closed){
+
+    try{
+
+      window.opener.postMessage(
+
+        {
+          type:"DEWAVE_MEMBER_SCANNED",
+          memberId:scannedMemberId
+        },
+
+        "*"
+
+      );
+
+      setStatus(
+        "Data member dikirim ke deWAVE."
+      );
+
+      setTimeout(function(){
+
+        window.close();
+
+      },500);
+
+      return;
+
+    }catch(error){
+
+      console.error(error);
+
+    }
+
+  }
+
+
+  /*
+    Fallback:
+    buka Web App dengan ID Member.
+  */
+  const url =
+    DEWAVE_APP +
+    "?member=" +
+    encodeURIComponent(
+      scannedMemberId
+    );
+
+  window.location.href=url;
+
+}
+
 
 function scanAgain(){
 
@@ -252,22 +359,33 @@ function scanAgain(){
     .classList.remove("show");
 
   lastCode="";
+  scannedMemberId="";
 
-  setStatus("Memulai kamera...");
+  setStatus(
+    "Memulai kamera..."
+  );
 
   setTimeout(function(){
+
     startScanner();
+
   },300);
 
 }
 
-window.addEventListener("load",function(){
 
-  setTimeout(function(){
-    startScanner();
-  },500);
+window.addEventListener(
+  "load",
+  function(){
 
-});
+    setTimeout(function(){
+
+      startScanner();
+
+    },500);
+
+  }
+);
 
 </script>
 
